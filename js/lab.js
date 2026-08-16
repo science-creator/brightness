@@ -422,17 +422,26 @@
 
     /* 색 띠 — 학습지의 차례 그대로 (뜨거운 청색 → 차가운 적색) */
     var bx = cssW * 0.08, bw = cssW * 0.84, by = cssH * 0.66, bh = clamp(cssH * 0.10, 22, 44);
+
+    /* ⚠ 띠 위의 **모든 것이 같은 눈금**을 써야 한다.
+       예전에는 눈금 이름표만 **같은 간격**으로 늘어놓고(25000·11000·8000·… 은 간격이 고르지 않다)
+       화살표와 실제 별만 로그 눈금에 얹었다. 그래서 8,000 K 라고 써 놓고
+       화살표는 6,500 K 칸을 가리켰다. 이제 셋 다 아래 `xOfTemp` 하나를 쓴다. */
+    var LOGLO = S1.log10(3000), LOGHI = S1.log10(25000);
+    function fracOf(T) { return clamp(1 - (S1.log10(T) - LOGLO) / (LOGHI - LOGLO), 0, 1); }
+    function xOfTemp(T) { return bx + bw * fracOf(T); }
+
     var grad = g.createLinearGradient(bx, 0, bx + bw, 0);
-    S1.COLOR_STEPS.forEach(function (c, i) {
-      grad.addColorStop(i / (S1.COLOR_STEPS.length - 1), c.css);
+    S1.COLOR_STEPS.forEach(function (c) {
+      grad.addColorStop(fracOf(c.temp), c.css);
     });
     g.fillStyle = grad;
     roundRect(g, bx, by, bw, bh, 8); g.fill();
 
     g.font = "13px sans-serif";
     g.textAlign = "center";
-    S1.COLOR_STEPS.forEach(function (c, i) {
-      var x = bx + bw * i / (S1.COLOR_STEPS.length - 1);
+    S1.COLOR_STEPS.forEach(function (c) {
+      var x = xOfTemp(c.temp);
       g.fillStyle = COL.ink;
       g.fillText(c.name, x, by + bh + 20);
       g.fillStyle = COL.faint;
@@ -440,8 +449,7 @@
     });
 
     /* 지금 온도 표시 */
-    var tt = 1 - (S1.log10(t) - S1.log10(3000)) / (S1.log10(25000) - S1.log10(3000));
-    var mx = bx + bw * clamp(tt, 0, 1);
+    var mx = xOfTemp(t);
     g.fillStyle = "#fff";
     g.beginPath();
     g.moveTo(mx, by - 4); g.lineTo(mx - 7, by - 16); g.lineTo(mx + 7, by - 16);
@@ -451,8 +459,7 @@
     g.font = "12px sans-serif";
     ["베텔게우스", "태양", "시리우스", "스피카"].forEach(function (nm) {
       var s = S1.byName(nm); if (!s) return;
-      var p = 1 - (S1.log10(s.temp) - S1.log10(3000)) / (S1.log10(25000) - S1.log10(3000));
-      var x = bx + bw * clamp(p, 0, 1);
+      var x = xOfTemp(s.temp);
       g.fillStyle = "rgba(226,232,240,.85)";
       g.beginPath(); g.arc(x, by - 26, 4, 0, Math.PI * 2); g.fill();
       g.fillText(nm, x, by - 34);
