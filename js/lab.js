@@ -197,11 +197,20 @@
   /* ---- 장면 ① 거리와 밝기 ---- */
   function drawDist(g) {
     var d = S.dist;
-    var bx = cssW * 0.13, cy = cssH * 0.47;
-    var pxPerM = (cssW * 0.72) / 3.0;            // 최대 3 m 가 화면에 들어오게
+    var bx = cssW * 0.13, cy = cssH * 0.50;
+    /* 빛 받는 면이 깊이 쪽으로도 뻗으므로 오른쪽에 자리를 남겨 둔다(0.72 → 0.60). */
+    var pxPerM = (cssW * 0.60) / 3.0;            // 최대 3 m 가 화면에 들어오게
     var sx = bx + d * pxPerM;
     var unit = clamp(cssH * 0.16, 26, 74);       // 1 m 일 때 빛이 덮는 정사각형의 한 변
     var half = unit * d / 2;
+    /* 깊이 축을 눌러 그리는 비율. 옆에서 본 그림에 정사각형을 얹으려면
+       깊이 쪽을 사선으로 눕혀야 한다. 크게 잡으면 무대 오른쪽·위로 넘친다. */
+    var DEPTH_X = 0.40, DEPTH_Y = 0.18;
+    /* 좁은 화면에서도 무대를 넘지 않도록 깊이 축을 더 눌러 준다.
+       위쪽은 안내 글자(y = 50 근처) 자리를 남긴다. */
+    var roomR = cssW - sx - 10, roomT = (cy - unit * d / 2) - 58;
+    if (unit * d * DEPTH_X > roomR) DEPTH_X = clamp(roomR / (unit * d), 0.12, 0.40);
+    if (unit * d * DEPTH_Y > roomT) DEPTH_Y = clamp(roomT / (unit * d), 0.06, 0.18);
 
     /* 빛이 퍼져 나가는 원뿔 */
     g.fillStyle = "rgba(251,191,36,.10)";
@@ -210,26 +219,47 @@
     g.lineTo(sx, cy - half); g.lineTo(sx, cy + half);
     g.closePath(); g.fill();
 
-    /* 빛을 받는 면 — 같은 빛이 넓이 d² 에 나뉜다 */
+    /* 빛을 받는 면 — 세로만이 아니라 **가로도 함께** d 배로 늘어난다.
+       그래서 넓이가 d × d = d² 이 된다. 옆에서 본 그림이라 깊이 쪽은 사선으로 눕혀 그린다. */
+    var side = unit * d;                         // 면 한 변 (1 m 일 때 unit)
+    var dx = side * DEPTH_X, dy = -side * DEPTH_Y;
+    function facePath() {
+      g.beginPath();
+      g.moveTo(sx, cy - half);
+      g.lineTo(sx + dx, cy - half + dy);
+      g.lineTo(sx + dx, cy + half + dy);
+      g.lineTo(sx, cy + half);
+      g.closePath();
+    }
     var bright = S1.brightnessAt(d);
     var alpha = clamp(bright / S1.REF_BRIGHT * 0.55, 0.03, 0.95);
     g.fillStyle = "rgba(251,191,36," + alpha + ")";
-    g.fillRect(sx, cy - half, unit * 0.34, half * 2);
+    facePath(); g.fill();
 
     if (S.showGrid) {
-      /* 1 m 일 때의 칸 크기로 격자를 그린다 → 칸 수가 곧 d² 이다 */
+      /* 칸 한 변은 **거리와 상관없이 언제나 1 m 일 때의 칸**이다.
+         그래서 세로로 d 줄, 깊이로 d 줄 → 보이는 칸 수가 곧 d² 이 된다.
+         (2 m 면 2×2 = 4칸, 3 m 면 3×3 = 9칸) */
+      var ux = 0, uy = unit;                                 // 세로 한 칸
+      var wx = unit * DEPTH_X, wy = -unit * DEPTH_Y;         // 깊이 한 칸
+      var x0 = sx, y0 = cy - half, i;
       g.strokeStyle = "rgba(226,232,240,.55)";
       g.lineWidth = 1.2;
-      var n = Math.max(1, Math.round(d));
-      var cell = (half * 2) / (d);              // 1 m 기준 칸 한 변
-      for (var i = 0; i <= d + 0.001; i += 1) {
-        var yy = cy - half + cell * i;
-        if (yy > cy + half + 0.5) break;
-        g.beginPath(); g.moveTo(sx, yy); g.lineTo(sx + unit * 0.34, yy); g.stroke();
+      for (i = 0; i <= d + 0.001; i += 1) {                  // 깊이 방향으로 그은 줄
+        g.beginPath();
+        g.moveTo(x0 + ux * i, y0 + uy * i);
+        g.lineTo(x0 + ux * i + wx * d, y0 + uy * i + wy * d);
+        g.stroke();
+      }
+      for (i = 0; i <= d + 0.001; i += 1) {                  // 세로 방향으로 그은 줄
+        g.beginPath();
+        g.moveTo(x0 + wx * i, y0 + wy * i);
+        g.lineTo(x0 + wx * i + ux * d, y0 + wy * i + uy * d);
+        g.stroke();
       }
       g.strokeStyle = "rgba(226,232,240,.85)";
       g.lineWidth = 2;
-      g.strokeRect(sx, cy - half, unit * 0.34, half * 2);
+      facePath(); g.stroke();
 
       /* 안내 글자는 무대 **오른쪽 위**에 고정한다.
          빛 받는 면 옆에 붙이면 거리를 최대로 밀었을 때 화면 밖으로 넘어간다. */
@@ -476,8 +506,10 @@
       ro(4, "1 m 일 때 대비", (1 / (S.dist * S.dist)).toFixed(3), " 배");
       $("fLaw").innerHTML = '밝기 = <span class="t">100</span> ÷ 거리<sup>2</sup> = 100 ÷ ' +
                             S.dist.toFixed(1) + '<sup>2</sup> = <span class="k">' + fmt(b) + '</span>';
-      $("fWhy").innerHTML = '<em>같은 빛이 ' + (S.dist * S.dist).toFixed(2) +
-                            ' 배 넓은 곳에 퍼졌다 → 한 칸이 받는 빛은 그만큼 줄어든다</em>';
+      /* 넓이가 왜 제곱인지 — **가로와 세로가 함께** 늘어나는 것을 글로도 못박아 둔다. */
+      $("fWhy").innerHTML = '<em>같은 빛이 가로 ' + S.dist.toFixed(1) + '배 × 세로 ' +
+                            S.dist.toFixed(1) + '배 = <b>' + (S.dist * S.dist).toFixed(2) +
+                            '배</b> 넓은 곳에 퍼졌다 → 한 칸이 받는 빛은 그만큼 줄어든다</em>';
       $("graphTitle").textContent = "📈 거리에 따른 밝기";
       $("graphSub").innerHTML = "거리가 2배면 밝기는 <b>1/4</b>";
 
