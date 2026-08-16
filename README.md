@@ -58,3 +58,11 @@
 같은 학년의 다른 단원은 별도 앱으로 있습니다 —
 [energy-keeper](https://github.com/science-creator/energy-keeper) (역학적 에너지 전환과 보존) ·
 [electromagnetic-induction](https://github.com/science-creator/electromagnetic-induction) (전자기 유도).
+
+## 🔑 정답지 (선생님용)
+
+선생님용 화면 위쪽의 **🔑 정답지** 를 누르면 정답만 모아 놓은 쪽이 열립니다.
+**PDF 를 만들지 않아도** 보이고, 그대로 인쇄하면 **A4 한 쪽**입니다.
+「문제도 함께」·「해설도 함께」를 켜면 더 자세히 나옵니다.
+
+> 학생이 주소를 치면 열리므로, 이 주소는 학생에게 알려 주지 마세요.

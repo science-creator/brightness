@@ -95,6 +95,22 @@
 <div class="wrap">
 
   <!-- 종이로 뽑았을 때만 나오는 머리글 (화면에서는 감춰져 있다) -->
+  <!-- 🔑 선생님용 정답지 — worksheet.html?key 로 열린다. 평소에는 숨어 있다. -->
+  <div id="keyRoot">
+    <div class="print-only print-head">
+      <h1>별의 밝기와 등급 학습지 · 정답지</h1>
+      <p class="sub">중학교 3학년 과학 · 별과 우주 [9과23-01] · 선생님용</p>
+    </div>
+    <div class="card no-print keybar">
+      <h2>🔑 정답지</h2>
+      <label><input type="checkbox" id="kQ"> 문제도 함께</label>
+      <label><input type="checkbox" id="kWhy"> 해설도 함께</label>
+      <span class="grow"></span>
+      <a class="btn" href="worksheet.html">← 학생용 학습지</a>
+      <button type="button" class="btn primary" id="kPrint">🖨 인쇄하기</button>
+    </div>
+    <div class="card" id="keySheet"></div>
+  </div>
   <div class="print-only print-head">
     <h1>별의 밝기와 등급 학습지</h1>
     <p class="sub">중학교 3학년 과학 · 별과 우주 [9과23-01]</p>
@@ -172,7 +188,9 @@
                "거리가 2배면 1/2 이 아니라 <b>1/4</b>이 되는 이유입니다." },
         { type: "tbl", q: "실험실에서 거리를 바꿔 가며 밝기를 읽어 표를 채우세요.",
           head: ["전등으로부터의 거리 (m)", "0.5", "1.0", "1.5", "2.0"],
-          rows: ["빛의 밝기 (상댓값)"] },
+          rows: ["빛의 밝기 (상댓값)"],
+          /* 1 ÷ 거리² — 1.0 m 를 1 로 본 값이다. */
+          keyAns: [["4.000", "1.000", "0.444", "0.250"]] },
         { type: "text", q: "밝기가 <b>거리의 제곱</b>에 반비례하는 까닭을 실험실의 <b>격자 그림</b>을 보고 설명해 보세요.",
           why: "전등에서 나온 빛의 양은 그대로인데, 멀어질수록 그 빛이 <b>더 넓은 곳에 퍼지기</b> 때문입니다.<br>" +
                "거리가 2배가 되면 빛이 퍼지는 넓이는 가로·세로가 각각 2배가 되어 <b>4배</b>가 됩니다. " +
@@ -576,9 +594,69 @@
     });
   }
 
+  /* ---------------------------------------------------------
+     🔑 정답지 (선생님용) — worksheet.html?key
+     학생용과 **같은 SHEET 를 그대로** 읽는다. 정답을 따로 적어 두지
+     않으므로, 문항을 고치면 정답지도 저절로 따라온다.
+     표(tbl)만은 정답이 자료에 없어 keyAns 를 문항에 함께 적어 둔다.
+     --------------------------------------------------------- */
+  function keyAnswerHtml(c) {
+    var it = c.def;
+    if (it.type === "tbl") {
+      if (typeof it.keyAns === "string") return it.keyAns;
+      if (!it.keyAns) return "<i>실험실에서 읽은 값</i>";
+      return it.keyAns.map(function (row, ri) {
+        return it.rows[ri] + " — " + row.join(" / ");
+      }).join("<br>");
+    }
+    if (it.type === "text") return "<i>서술형</i> · " + stripTags(it.why || "");
+    return c.rightText ? c.rightText() : "—";
+  }
+
+  function buildKey() {
+    document.body.classList.add("keymode");
+    document.title = "별의 밝기와 등급 학습지 정답지";
+    var top = document.querySelector(".top h1");
+    if (top) top.textContent = "🔑 별의 밝기와 등급 학습지 — 정답지";
+
+    var host = document.getElementById("keySheet");
+    var cur = -1, list = null;
+    ctrls.forEach(function (c) {
+      if (c.step !== cur) {
+        cur = c.step;
+        host.appendChild(el("div", "kstep", SHEET[cur].step));
+        list = el("div", "klist");
+        host.appendChild(list);
+      }
+      var row = el("div", "krow");
+      row.appendChild(el("span", "kno", String(c.no)));
+      var body = el("div", "kbody");
+      body.appendChild(el("div", "kq", stripTags(c.def.q)));
+      body.appendChild(el("div", "ka", keyAnswerHtml(c)));
+      /* 서술형은 정답 자리에 이미 해설이 들어가 있어 두 번 쓰지 않는다. */
+      if (c.def.why && c.def.type !== "text") {
+        body.appendChild(el("div", "kwhy", stripTags(c.def.why)));
+      }
+      row.appendChild(body);
+      list.appendChild(row);
+    });
+
+    function toggle(id, cls) {
+      var box = document.getElementById(id);
+      box.addEventListener("change", function () {
+        document.body.classList.toggle(cls, box.checked);
+      });
+    }
+    toggle("kQ", "showq");
+    toggle("kWhy", "showwhy");
+    document.getElementById("kPrint").addEventListener("click", function () { window.print(); });
+  }
   build(); bind(); applyLockState();
 
+  if (/(^|[?&])key(=|&|$)/.test(location.search)) buildKey();
+
   window.BRSheet = {
+    buildKey: buildKey, keyAnswerHtml: keyAnswerHtml,
     ctrls: ctrls, score: score, makePdf: makePdf, SHEET: SHEET,
     isSubmitted: function () { return submitted; },
     forceSubmit: function (info) {
