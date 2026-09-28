@@ -228,7 +228,7 @@ ES 모듈(`type="module"`, `import`)·`fetch`·`XMLHttpRequest`·외부 CDN·`lo
 - [x] 학습지 21문항 + PDF 제출 + 인쇄(A4 2쪽) (2026-08-14)
 - [x] 교사용 제출물 정리 (2026-08-14)
 - [ ] **선생님이 학습지 내용을 검토** — 종이 학습지에서 도출한 것이라 진도·용어와 맞는지 확인 필요.
-- [ ] **GitHub Pages 켜기** — Settings → Pages → Branch `main` / `/ (root)`.
+- [x] **GitHub Pages** — 켜져 있음 · https://science-creator.github.io/brightness/ (2026-09-28 확인)
 - [ ] **연주시차 장면** — 같은 성취기준의 앞부분. 종이 학습지에 시차 측정 활동이 있으니
       그 활동을 화면으로 옮기면 「별의 거리를 구하는 방법」이 완성된다.
 - [ ] **성단 · 성간 물질 · 성운** — 같은 단원의 뒷부분. 별도 앱이 나을 수도 있다.
