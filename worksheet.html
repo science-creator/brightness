@@ -43,41 +43,43 @@
        -----------------------------------------------------
        `css/app.css` 의 공용 인쇄 블록은 문항이 가장 많은
        `electromagnetic-induction`(22문항)을 A4 두 쪽에 넣으려고 9pt 로 잡혀 있다.
-       이 학습지는 21문항이라 그 값으로는 **두 번째 쪽이 60% 밖에 안 찼다.**
-       남는 자리만큼 키워 두 쪽을 채운다. (EnergyKeeper 와 같은 방식)
+       21문항일 때는 10pt 로 두 쪽을 채웠다.
+       2026-09-28 에 11문항으로 줄인 뒤 둘째 쪽이 40% 만 차서, 선생님 요청으로 **13pt** 로 키웠다.
+       Edge 로 실제 인쇄해 보니 13pt 에서 **2쪽 · 둘째 쪽 약 75%** (15pt 도 2쪽이지만 보기 네모와
+       번호가 붙어 보여 13pt 로 정했다).
 
        ⚠ 공용 블록(app.css)은 **세 앱이 똑같이** 유지한다. 앱마다 다른 값은 여기에만 둔다.
        ===================================================== */
-    html, body { font-size: 10pt; line-height: 1.4; }
+    html, body { font-size: 13pt; line-height: 1.4; }
 
-    .print-head h1 { font-size: 14pt; }
-    .print-head .sub { font-size: 8.5pt; }
-    .print-head .who { font-size: 10pt; padding: 2mm 3mm; }
+    .print-head h1 { font-size: 18pt; }
+    .print-head .sub { font-size: 11pt; }
+    .print-head .who { font-size: 13pt; padding: 2.6mm 3.9mm; }
 
-    #sheet > h2 { font-size: 11.5pt; margin: 3.2mm 0 1.6mm; }
-    #sheet > h2 .step { font-size: 9pt; }
-    #sheet > p.lead { font-size: 8.5pt; margin: 0 0 1.6mm; }
+    #sheet > h2 { font-size: 15pt; margin: 4.2mm 0 2.1mm; }
+    #sheet > h2 .step { font-size: 11.5pt; }
+    #sheet > p.lead { font-size: 11pt; margin: 0 0 2.1mm; }
 
-    .qbox { margin: 0 0 2.2mm; }
-    .qtitle { font-size: 10pt; line-height: 1.3; margin: 0 0 1.2mm; }
-    .qno { font-size: 9pt; padding: 0 1.3mm; margin-right: 1.6mm; }
+    .qbox { margin: 0 0 2.9mm; }
+    .qtitle { font-size: 13pt; line-height: 1.3; margin: 0 0 1.6mm; }
+    .qno { font-size: 11.5pt; padding: 0 1.7mm; margin-right: 2.1mm; }
 
-    .opt { font-size: 9pt; line-height: 1.3; padding: .35mm 0 .35mm 5.2mm; }
-    .opt::before { width: 2.8mm; height: 2.8mm; top: 1mm; }
-    .ox-row .opt { font-size: 10pt; }
+    .opt { font-size: 11.5pt; line-height: 1.3; padding: .45mm 0 .45mm 6.2mm; }
+    .opt::before { width: 3.4mm; height: 3.4mm; top: 1.2mm; }
+    .ox-row .opt { font-size: 13pt; }
 
-    .numwrap input { font-size: 10pt; width: 28mm; }
-    .numwrap .unit { font-size: 10pt; }
+    .numwrap input { font-size: 13pt; width: 36mm; }
+    .numwrap .unit { font-size: 13pt; }
 
     textarea {
-      font-size: 10pt; line-height: 6.8mm;
-      min-height: 12.5mm; height: 13mm;
+      font-size: 13pt; line-height: 8.8mm;
+      min-height: 16.2mm; height: 16.9mm;
       background:
-        repeating-linear-gradient(#fff 0, #fff 6.8mm, #bbb 6.8mm, #bbb 7mm) !important;
+        repeating-linear-gradient(#fff 0, #fff 8.8mm, #bbb 8.8mm, #bbb 9.1mm) !important;
     }
 
-    table.grid th, table.grid td { font-size: 8.5pt; padding: 1mm; }
-    table.grid td input { font-size: 8.5pt; min-height: 6mm; }
+    table.grid th, table.grid td { font-size: 11pt; padding: 1.3mm; }
+    table.grid td input { font-size: 11pt; min-height: 7.8mm; }
 
     .fig svg { height: 30mm; }
   }
